@@ -82,38 +82,67 @@ export function DashboardPage() {
     );
   }
 
+
+
   return (
     <AppShell title="Dashboard">
       <div className="mb-4 animate-fade-in">
         <div className="row g-3">
           <div className="col-12 col-md-6 col-lg-3">
-            <div className="card card-shadow p-3 h-100">
-              <div className="text-uppercase text-secondary small">Students</div>
-              <div className="h2 mb-0 fw-bold text-primary">{counts.totalStudents}</div>
+            <div className="card card-shadow p-3 h-100 border-0">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="text-uppercase text-secondary small fw-bold">Students</div>
+                  <div className="h3 mb-0 fw-bold text-primary">{counts.totalStudents}</div>
+                </div>
+                <div className="bg-primary-light text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 42, height: 42 }}>
+                  <i className="bi bi-people-fill h5 mb-0"></i>
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-12 col-md-6 col-lg-3">
-            <div className="card card-shadow p-3 h-100">
-              <div className="text-uppercase text-secondary small">Total Charges</div>
-              <div className="h5 mb-0 fw-bold">{formatINR(counts.totalCharges)}</div>
+            <div className="card card-shadow p-3 h-100 border-0">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="text-uppercase text-secondary small fw-bold">Total Charges</div>
+                  <div className="h3 mb-0 fw-bold text-dark">{formatINR(counts.totalCharges)}</div>
+                </div>
+                <div className="bg-warning-light text-warning rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 42, height: 42 }}>
+                  <i className="bi bi-file-earmark-text-fill h5 mb-0"></i>
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-12 col-md-6 col-lg-3">
-            <div className="card card-shadow p-3 h-100">
-              <div className="text-uppercase text-secondary small">Total Paid</div>
-              <div className="h5 mb-0 fw-bold text-success">{formatINR(counts.totalPaid)}</div>
+            <div className="card card-shadow p-3 h-100 border-0">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="text-uppercase text-secondary small fw-bold">Total Paid</div>
+                  <div className="h3 mb-0 fw-bold text-success">{formatINR(counts.totalPaid)}</div>
+                </div>
+                <div className="bg-success-light text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: 42, height: 42 }}>
+                  <i className="bi bi-check-circle-fill h5 mb-0"></i>
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-12 col-md-6 col-lg-3">
-            <div className="card card-shadow p-3 h-100">
-              <div className="text-uppercase text-secondary small">Outstanding</div>
-              <div className={`h5 mb-0 fw-bold ${outstandingBalance > 0 ? 'text-danger' : 'text-success'}`}>
-                {formatINR(outstandingBalance)}
+            <div className="card card-shadow p-3 h-100 border-0">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="text-uppercase text-secondary small fw-bold">Outstanding</div>
+                  <div className={`h3 mb-0 fw-bold ${outstandingBalance > 0 ? 'text-danger' : 'text-success'}`}>
+                    {formatINR(outstandingBalance)}
+                  </div>
+                </div>
+                <div className={`rounded-circle p-2 d-flex align-items-center justify-content-center ${outstandingBalance > 0 ? 'bg-danger-light text-danger' : 'bg-success-light text-success'}`} style={{ width: 42, height: 42 }}>
+                  <i className={`bi ${outstandingBalance > 0 ? 'bi-exclamation-triangle-fill' : 'bi-shield-check-fill'} h5 mb-0`}></i>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Visual Analytics Charts */}
@@ -212,16 +241,49 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div className="card card-shadow p-3">
-        <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3">
-          <div>
-            <h2 className="h5 mb-1">Quick actions</h2>
-            <p className="text-muted mb-0">Add records and search students fast.</p>
+
+      <div className="card card-shadow p-4 mb-4 border-0">
+        <h2 className="h5 fw-bold mb-1">Quick Actions</h2>
+        <p className="text-muted small mb-4">Manage database records and search students quickly.</p>
+        <div className="row g-3">
+          <div className="col-12 col-md-4">
+            <Link to="/students" className="card h-100 p-3 text-decoration-none border-0 bg-light card-shadow shadow-sm">
+              <div className="d-flex align-items-center gap-3">
+                <div className="bg-primary-light text-primary rounded p-3 d-flex align-items-center justify-content-center" style={{ width: 52, height: 52 }}>
+                  <i className="bi bi-people h4 mb-0"></i>
+                </div>
+                <div>
+                  <h3 className="h6 mb-0 fw-bold text-dark">View Students</h3>
+                  <p className="text-muted small mb-0">Browse and search records</p>
+                </div>
+              </div>
+            </Link>
           </div>
-          <div className="d-flex flex-wrap gap-2">
-            <Link to="/students" className="btn btn-primary">View Students</Link>
-            <Link to="/charges/new" className="btn btn-outline-primary">Add Charge</Link>
-            <Link to="/payments/new" className="btn btn-outline-success">Record Payment</Link>
+          <div className="col-12 col-md-4">
+            <Link to="/charges/new" className="card h-100 p-3 text-decoration-none border-0 bg-light card-shadow shadow-sm">
+              <div className="d-flex align-items-center gap-3">
+                <div className="bg-warning-light text-warning rounded p-3 d-flex align-items-center justify-content-center" style={{ width: 52, height: 52 }}>
+                  <i className="bi bi-file-earmark-plus h4 mb-0"></i>
+                </div>
+                <div>
+                  <h3 className="h6 mb-0 fw-bold text-dark">Add Charge</h3>
+                  <p className="text-muted small mb-0">Invoice new tuition/fees</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+          <div className="col-12 col-md-4">
+            <Link to="/payments/new" className="card h-100 p-3 text-decoration-none border-0 bg-light card-shadow shadow-sm">
+              <div className="d-flex align-items-center gap-3">
+                <div className="bg-success-light text-success rounded p-3 d-flex align-items-center justify-content-center" style={{ width: 52, height: 52 }}>
+                  <i className="bi bi-credit-card h4 mb-0"></i>
+                </div>
+                <div>
+                  <h3 className="h6 mb-0 fw-bold text-dark">Record Payment</h3>
+                  <p className="text-muted small mb-0">Collect pending student fees</p>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </div>
