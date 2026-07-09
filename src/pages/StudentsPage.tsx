@@ -1,45 +1,34 @@
+
+
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { AppShell } from '../components/AppShell';
 import { db } from '../config/firebase';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import type { Student } from '../types/models';
+import { formatINR } from '../utils/currency';
 
 export function StudentsPage() {
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
+  const [chargesMap, setChargesMap] = useState<Record<string, number>>({});
+  const [paymentsMap, setPaymentsMap] = useState<Record<string, number>>({});
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     if (!user) return;
     setLoading(true);
 
-    const q = collection(db, 'students');
-    const unsubscribe = onSnapshot(
-      q,
+    const unsubStudents = onSnapshot(
+      collection(db, 'students'),
       (snapshot) => {
         const list = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...(docSnap.data() as Omit<Student, 'id'>),
         })) as Student[];
-
-        // Filter by name (fuzzy substring search)
-        const searchNormalized = search.trim().toUpperCase();
-        const filtered = searchNormalized
-          ? list.filter((s) => s.nameNormalized && s.nameNormalized.includes(searchNormalized))
-          : list;
-
-        // Sort by createdAt descending
-        const sorted = filtered.sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA;
-        });
-
-        setStudents(sorted);
+        setStudents(list);
         setLoading(false);
       },
       (error) => {
@@ -48,10 +37,52 @@ export function StudentsPage() {
       }
     );
 
-    return unsubscribe;
-  }, [user, search]);
+    const unsubCharges = onSnapshot(
+      collection(db, 'charges'),
+      (snapshot) => {
+        const map: Record<string, number> = {};
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const sId = data.studentId;
+          map[sId] = (map[sId] || 0) + (data.amountPaise || 0);
+        });
+        setChargesMap(map);
+      }
+    );
+
+    const unsubPayments = onSnapshot(
+      collection(db, 'payments'),
+      (snapshot) => {
+        const map: Record<string, number> = {};
+        snapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          const sId = data.studentId;
+          map[sId] = (map[sId] || 0) + (data.amountPaise || 0);
+        });
+        setPaymentsMap(map);
+      }
+    );
+
+    return () => {
+      unsubStudents();
+      unsubCharges();
+      unsubPayments();
+    };
+  }, [user]);
 
   const activeCount = useMemo(() => students.filter((student) => student.status === 'active').length, [students]);
+
+  const filteredAndSortedStudents = useMemo(() => {
+    const searchNormalized = search.trim().toUpperCase();
+    const filtered = searchNormalized
+      ? students.filter((s) => s.nameNormalized && s.nameNormalized.includes(searchNormalized))
+      : students;
+    return filtered.sort((a, b) => {
+      const timeA = a.createdAt?.seconds || 0;
+      const timeB = b.createdAt?.seconds || 0;
+      return timeB - timeA;
+    });
+  }, [students, search]);
 
   return (
     <AppShell title="Students">
@@ -91,6 +122,7 @@ export function StudentsPage() {
         </div>
       </div>
 
+
       {loading && students.length === 0 ? (
         <div className="d-flex justify-content-center py-5">
           <div className="spinner-border text-primary" role="status">
@@ -101,41 +133,60 @@ export function StudentsPage() {
         <>
           {/* Mobile View: Clean Responsive Cards */}
           <div className="d-block d-md-none">
-            {students.length === 0 ? (
+            {filteredAndSortedStudents.length === 0 ? (
               <div className="text-center text-muted py-4 card card-shadow">
                 No students found.
               </div>
             ) : (
               <div className="row g-3">
-                {students.map((student) => (
-                  <div className="col-12" key={student.id}>
-                    <div className="card card-shadow p-3 student-card">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h3 className="h6 mb-0 fw-bold text-primary">
-                          <Link to={`/students/${student.id}`} className="text-decoration-none">
-                            {student.name}
+                {filteredAndSortedStudents.map((student) => {
+                  const chargesVal = chargesMap[student.id] || 0;
+                  const paymentsVal = paymentsMap[student.id] || 0;
+                  const balance = chargesVal - paymentsVal;
+                  const isPending = balance > 0;
+                  return (
+                    <div className="col-12" key={student.id}>
+                      <div 
+                        className="card card-shadow p-3 student-card"
+                        style={{
+                          borderLeft: isPending ? '5px solid #dc3545' : '5px solid #198754',
+                          backgroundColor: isPending ? '#fff8f8' : undefined
+                        }}
+                      >
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h3 className="h6 mb-0 fw-bold text-primary">
+                            <Link to={`/students/${student.id}`} className="text-decoration-none">
+                              {student.name}
+                            </Link>
+                          </h3>
+                          <div className="d-flex flex-column align-items-end gap-1">
+                            <span className={`badge bg-${student.status === 'active' ? 'success' : 'secondary'}`}>
+                              {student.status}
+                            </span>
+                            {isPending ? (
+                              <span className="badge bg-danger">Pending: {formatINR(balance)}</span>
+                            ) : (
+                              <span className="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="student-card-details small text-secondary">
+                          <div className="mb-1"><i className="bi bi-person-fill me-1"></i> Father: {student.fatherName}</div>
+                          <div className="mb-1"><i className="bi bi-book-fill me-1"></i> Class: {student.className} {student.section ? `(${student.section})` : ''}</div>
+                          <div className="mb-1"><i className="bi bi-card-text me-1"></i> Adm No: {student.admissionNumber}</div>
+                          {student.mobile && (
+                            <div className="mb-1"><i className="bi bi-telephone-fill me-1"></i> Mobile: {student.mobile}</div>
+                          )}
+                        </div>
+                        <div className="d-flex gap-2 mt-3">
+                          <Link to={`/students/${student.id}`} className="btn btn-sm btn-outline-primary flex-grow-1">
+                            View Details
                           </Link>
-                        </h3>
-                        <span className={`badge bg-${student.status === 'active' ? 'success' : 'secondary'} ms-2`}>
-                          {student.status}
-                        </span>
-                      </div>
-                      <div className="student-card-details small text-secondary">
-                        <div className="mb-1"><i className="bi bi-person-fill me-1"></i> Father: {student.fatherName}</div>
-                        <div className="mb-1"><i className="bi bi-book-fill me-1"></i> Class: {student.className} {student.section ? `(${student.section})` : ''}</div>
-                        <div className="mb-1"><i className="bi bi-card-text me-1"></i> Adm No: {student.admissionNumber}</div>
-                        {student.mobile && (
-                          <div className="mb-1"><i className="bi bi-telephone-fill me-1"></i> Mobile: {student.mobile}</div>
-                        )}
-                      </div>
-                      <div className="d-flex gap-2 mt-3">
-                        <Link to={`/students/${student.id}`} className="btn btn-sm btn-outline-primary flex-grow-1">
-                          View Details
-                        </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -152,36 +203,55 @@ export function StudentsPage() {
                     <th>Admission No.</th>
                     <th>Mobile</th>
                     <th>Status</th>
+                    <th>Balance</th>
                     <th className="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id}>
-                      <td className="fw-semibold">
-                        <Link to={`/students/${student.id}`} className="text-decoration-none">
-                          {student.name}
-                        </Link>
-                      </td>
-                      <td>{student.fatherName}</td>
-                      <td>{student.className} {student.section ? `(${student.section})` : ''}</td>
-                      <td>{student.admissionNumber}</td>
-                      <td>{student.mobile || <span className="text-muted">-</span>}</td>
-                      <td>
-                        <span className={`badge bg-${student.status === 'active' ? 'success' : 'secondary'}`}>
-                          {student.status}
-                        </span>
-                      </td>
-                      <td className="text-end">
-                        <Link to={`/students/${student.id}`} className="btn btn-sm btn-outline-primary">
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                  {students.length === 0 && (
+                  {filteredAndSortedStudents.map((student) => {
+                    const chargesVal = chargesMap[student.id] || 0;
+                    const paymentsVal = paymentsMap[student.id] || 0;
+                    const balance = chargesVal - paymentsVal;
+                    const isPending = balance > 0;
+                    return (
+                      <tr 
+                        key={student.id}
+                        style={{
+                          backgroundColor: isPending ? '#fff8f8' : undefined
+                        }}
+                      >
+                        <td className="fw-semibold">
+                          <Link to={`/students/${student.id}`} className="text-decoration-none">
+                            {student.name}
+                          </Link>
+                        </td>
+                        <td>{student.fatherName}</td>
+                        <td>{student.className} {student.section ? `(${student.section})` : ''}</td>
+                        <td>{student.admissionNumber}</td>
+                        <td>{student.mobile || <span className="text-muted">-</span>}</td>
+                        <td>
+                          <span className={`badge bg-${student.status === 'active' ? 'success' : 'secondary'}`}>
+                            {student.status}
+                          </span>
+                        </td>
+                        <td>
+                          {isPending ? (
+                            <span className="badge bg-danger">Pending: {formatINR(balance)}</span>
+                          ) : (
+                            <span className="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                          )}
+                        </td>
+                        <td className="text-end">
+                          <Link to={`/students/${student.id}`} className="btn btn-sm btn-outline-primary">
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filteredAndSortedStudents.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center text-muted py-4">
+                      <td colSpan={8} className="text-center text-muted py-4">
                         No students found.
                       </td>
                     </tr>

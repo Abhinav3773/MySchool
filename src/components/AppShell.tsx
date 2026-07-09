@@ -23,7 +23,9 @@ export function AppShell({ title, children }: AppShellProps) {
             <Link className="navbar-brand mb-0 h5" to="/">Fee Tracker</Link>
             <div className="text-muted-small">{title}</div>
           </div>
+
           <div className="d-flex gap-2">
+            <Link to="/dashboard" className="btn btn-outline-primary btn-sm">Dashboard</Link>
             <Link to="/students" className="btn btn-outline-secondary btn-sm">Students</Link>
             <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
               Logout
