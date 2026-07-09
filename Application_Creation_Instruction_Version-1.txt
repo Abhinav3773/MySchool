@@ -1,0 +1,702 @@
+You are a senior React developer. Build a complete small mobile-first School Fee Tracker web application from scratch.
+
+The application will be used by a small school administrator mainly from a mobile phone.
+
+Keep the application simple, clean, maintainable, and fully functional.
+
+Do not over-engineer the solution.
+
+Do not only provide explanations or code snippets. Create the complete working application in the current repository.
+
+If the repository is empty, initialize the project.
+
+1. TECHNOLOGY STACK
+
+Use:
+
+React
+Vite
+TypeScript
+Bootstrap 5
+Bootstrap Icons
+React Router
+Firebase
+Cloud Firestore
+
+Do not create a separate backend.
+
+Do not use:
+
+Spring Boot
+Express
+Node.js backend
+PostgreSQL
+MySQL
+localStorage as the main database
+
+The frontend will later be deployed on GitHub Pages.
+
+The database will be Cloud Firestore.
+
+2. APPLICATION PURPOSE
+
+Build a simple School Fee Tracker where the user can:
+
+Add students
+Edit students
+View students
+Search students by name
+Add different fee charges
+Record payments
+Support partial payments
+Automatically calculate remaining balance
+View student fee history
+Use the application easily from a mobile phone
+3. MAIN BUSINESS RULE
+
+The balance must always be calculated automatically.
+
+Use:
+
+Total Charges = Sum of all charges added for the student
+
+Total Paid = Sum of all payments made by the student
+
+Remaining Balance = Total Charges - Total Paid
+
+Example:
+
+Monthly Fee = ₹1,000
+Books = ₹2,500
+Dress = ₹1,200
+
+Total Charges = ₹4,700
+
+Payments:
+₹2,000
+₹1,000
+
+Total Paid = ₹3,000
+
+Remaining Balance = ₹1,700
+
+Never allow the user to manually enter or edit the remaining balance.
+
+4. STUDENT DATA
+
+Create a Firestore collection:
+
+students
+
+Each student should contain:
+
+id
+name
+fatherName
+className
+mobile
+admissionNumber
+createdAt
+updatedAt
+
+Example:
+
+{
+name: "Rahul Kumar",
+fatherName: "Amit Kumar",
+className: "3",
+mobile: "9876543210",
+admissionNumber: "ADM001"
+}
+
+5. CHARGES DATA
+
+Create a Firestore collection:
+
+charges
+
+Each charge should contain:
+
+id
+studentId
+type
+description
+amount
+date
+createdAt
+
+Supported charge types:
+
+Monthly Fee
+Books
+Dress / Uniform
+Admission Fee
+Transport Fee
+Exam Fee
+Other
+
+Example:
+
+{
+studentId: "student123",
+type: "Books",
+description: "Class 3 books",
+amount: 2500,
+date: "2026-07-08"
+}
+
+6. PAYMENTS DATA
+
+Create a Firestore collection:
+
+payments
+
+Each payment should contain:
+
+id
+studentId
+amount
+date
+paymentMode
+note
+createdAt
+
+Supported payment modes:
+
+Cash
+UPI
+Bank Transfer
+Other
+
+Example:
+
+{
+studentId: "student123",
+amount: 1500,
+date: "2026-07-08",
+paymentMode: "Cash",
+note: "First payment"
+}
+
+7. DASHBOARD
+
+Create a simple dashboard.
+
+Show summary cards:
+
+Total Students
+Total Charges
+Total Paid
+Total Outstanding Balance
+
+Also add quick action buttons:
+
+Add Student
+Add Charge
+Record Payment
+Search Student
+
+The dashboard must work properly on mobile screens.
+
+8. STUDENTS PAGE
+
+Create a Students page.
+
+Features:
+
+Display all students
+Search input at the top
+Search by student name
+Case-insensitive search
+Add Student button
+View Student button
+Edit Student button
+
+Each student card should show:
+
+Student Name
+Father Name
+Class
+Admission Number
+Mobile Number
+
+On mobile, display students as clean cards.
+
+9. ADD STUDENT PAGE
+
+Create a form with:
+
+Student Name
+Father Name
+Class
+Mobile Number
+Admission Number
+
+Validation:
+
+Student Name required
+Father Name required
+Class required
+Admission Number required
+Mobile number optional
+Trim unnecessary spaces
+
+After successful save:
+
+Show success message
+Navigate to Students page
+10. EDIT STUDENT
+
+Allow editing an existing student.
+
+The form should load existing student data.
+
+Allow updating:
+
+Name
+Father Name
+Class
+Mobile
+Admission Number
+
+After successful update:
+
+Show success message
+Navigate back to student details
+11. STUDENT DETAILS PAGE
+
+Create a Student Details page.
+
+Show:
+
+Student Information:
+
+Name
+Father Name
+Class
+Admission Number
+Mobile Number
+
+Financial Summary:
+
+Total Charges
+Total Paid
+Remaining Balance
+
+Example:
+
+Total Charges: ₹4,700
+Total Paid: ₹3,000
+Balance: ₹1,700
+
+Add buttons:
+
+Add Charge
+Record Payment
+Edit Student
+
+Below the summary, show:
+
+Charge History
+
+Each charge should display:
+
+Date
+Fee Type
+Description
+Amount
+
+Payment History
+
+Each payment should display:
+
+Date
+Amount
+Payment Mode
+Note
+12. ADD CHARGE PAGE
+
+Create an Add Charge form.
+
+Fields:
+
+Select Student
+Charge Type
+Description
+Amount
+Date
+
+Charge Type dropdown:
+
+Monthly Fee
+Books
+Dress / Uniform
+Admission Fee
+Transport Fee
+Exam Fee
+Other
+
+Validation:
+
+Student required
+Charge Type required
+Amount required
+Amount must be greater than 0
+Date required
+
+After saving:
+
+Store charge in Firestore
+Show success message
+Update balance automatically
+Navigate to student details page
+13. RECORD PAYMENT PAGE
+
+Create a Record Payment form.
+
+Fields:
+
+Select Student
+Amount Paid
+Payment Date
+Payment Mode
+Note
+
+Payment modes:
+
+Cash
+UPI
+Bank Transfer
+Other
+
+Validation:
+
+Student required
+Amount required
+Amount greater than 0
+Date required
+
+Support partial payments.
+
+Example:
+
+Total Charges = ₹5,000
+
+First Payment = ₹2,000
+
+Balance = ₹3,000
+
+Second Payment = ₹1,000
+
+Balance = ₹2,000
+
+After saving:
+
+Store payment in Firestore
+Show success message
+Update balance automatically
+Navigate to student details page
+14. AUTOMATIC BALANCE CALCULATION
+
+Create reusable calculation functions.
+
+For each student:
+
+totalCharges = sum of all charges for student
+
+totalPaid = sum of all payments for student
+
+balance = totalCharges - totalPaid
+
+Do not store balance manually in Firestore.
+
+Always calculate it from charges and payments.
+
+15. FIREBASE CONFIGURATION
+
+Create:
+
+src/config/firebase.ts
+
+Use environment variables.
+
+Create:
+
+.env.example
+
+With:
+
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+
+Do not hardcode Firebase configuration directly in source code.
+
+Do not commit the real .env file.
+
+Add .env to .gitignore.
+
+16. FIRESTORE SERVICES
+
+Create separate service files:
+
+src/services/studentService.ts
+src/services/chargeService.ts
+src/services/paymentService.ts
+
+Implement:
+
+Student Service:
+
+addStudent
+getStudents
+getStudentById
+updateStudent
+searchStudentsByName
+
+Charge Service:
+
+addCharge
+getChargesByStudentId
+getAllCharges
+
+Payment Service:
+
+addPayment
+getPaymentsByStudentId
+getAllPayments
+
+Keep Firestore logic outside React UI components.
+
+17. PROJECT STRUCTURE
+
+Use a clean structure:
+
+src/
+components/
+layout/
+common/
+
+pages/
+Dashboard.tsx
+Students.tsx
+AddStudent.tsx
+EditStudent.tsx
+StudentDetails.tsx
+AddCharge.tsx
+RecordPayment.tsx
+
+services/
+studentService.ts
+chargeService.ts
+paymentService.ts
+
+config/
+firebase.ts
+
+types/
+index.ts
+
+utils/
+calculations.ts
+currency.ts
+
+App.tsx
+main.tsx
+
+18. ROUTING
+
+Use React Router.
+
+Routes:
+
+/
+Redirect to dashboard
+
+/dashboard
+
+/students
+
+/students/new
+
+/students/
+
+/students//edit
+
+/charges/new
+
+/payments/new
+
+Use HashRouter so the application works correctly when deployed to GitHub Pages.
+
+19. MOBILE-FIRST DESIGN
+
+The application will mainly be used from phones.
+
+Requirements:
+
+Responsive layout
+Mobile-first design
+Works from 320px width and above
+Large buttons
+Easy touch interaction
+No horizontal page overflow
+Clean Bootstrap cards
+Responsive forms
+Readable text
+Simple navigation
+
+Create a responsive navigation bar with:
+
+Dashboard
+Students
+Add Charge
+Record Payment
+
+Use Bootstrap Icons where useful.
+
+20. CURRENCY
+
+Use Indian Rupees.
+
+Display values like:
+
+₹1,000
+₹12,500
+₹1,25,000
+
+Create a reusable currency formatter.
+
+Use:
+
+Intl.NumberFormat("en-IN", {
+style: "currency",
+currency: "INR"
+})
+
+21. USER FEEDBACK
+
+Implement simple:
+
+Loading spinner
+Success message
+Error message
+Empty state
+
+Examples:
+
+"No students found"
+
+"No charges added yet"
+
+"No payments recorded yet"
+
+Disable submit buttons while saving to prevent duplicate submissions.
+
+22. BASIC FIRESTORE SECURITY RULES
+
+Create:
+
+firestore.rules
+
+For the current MVP, keep rules simple.
+
+Do not use:
+
+allow read, write: if true;
+
+Since authentication is not part of the current MVP, clearly document that this application is intended for controlled/private use during the initial version.
+
+Add a clear warning in README that public deployment without authentication requires proper Firestore security before storing real financial data.
+
+Do not pretend the app is secure for public production use without authentication.
+
+23. README
+
+Create README.md.
+
+Include:
+
+Project overview
+Features
+Technology stack
+Installation steps
+Firebase setup
+Firestore setup
+Environment variable setup
+How to run locally
+How to build
+How to deploy frontend to GitHub Pages
+Firestore data structure
+Important security warning
+Future improvements
+
+Provide exact commands.
+
+24. REQUIRED COMMANDS
+
+Configure:
+
+npm run dev
+npm run build
+npm run preview
+
+Also configure linting.
+
+25. CODE QUALITY
+
+Requirements:
+
+Use TypeScript
+Avoid unnecessary any
+Keep components readable
+Keep Firestore code in service files
+Reuse common functions
+No fake API calls
+No hardcoded student data
+No unnecessary complex architecture
+No Redux
+No global state library unless absolutely required
+No backend server
+No unnecessary dependencies
+26. FINAL VERIFICATION
+
+Before finishing:
+
+Install dependencies
+Run the application build
+Fix TypeScript errors
+Fix build errors
+Verify Firebase configuration
+Verify Add Student
+Verify Edit Student
+Verify Search Student
+Verify Add Charge
+Verify Record Payment
+Verify partial payment
+Verify automatic balance calculation
+Verify mobile responsiveness
+Verify GitHub Pages routing
+Verify .env is ignored
+27. FINAL RESPONSE
+
+After implementation, provide:
+
+What was created
+Project structure
+Main features
+Commands executed
+Build result
+Manual Firebase steps required
+Exact next command I should run
+
+Start now.
+
+First inspect the current repository.
+
+If the repository is empty, initialize the React + Vite + TypeScript project.
+
+Then build the complete application.
