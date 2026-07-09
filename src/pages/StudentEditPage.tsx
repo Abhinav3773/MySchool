@@ -94,10 +94,14 @@ export function StudentEditPage() {
         admissionNumber: form.admissionNumber,
         admissionNumberNormalized: normalizeText(form.admissionNumber),
         status: form.status as 'active' | 'inactive',
+      }).catch((err) => {
+        console.error("Firestore background update failed:", err);
+        alert("Firestore update failed: " + err.message);
       });
       navigate(`/students/${studentId}`);
-    } catch (err) {
-      setError('Unable to update student.');
+    } catch (err: any) {
+      console.error("Update student failed:", err);
+      setError(err.message || 'Unable to update student.');
       setSaving(false);
     }
   };

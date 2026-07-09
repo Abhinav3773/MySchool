@@ -56,10 +56,14 @@ export function StudentFormPage() {
         admissionNumber: form.admissionNumber,
         admissionNumberNormalized: normalizeText(form.admissionNumber),
         status: form.status as 'active' | 'inactive',
+      }).catch((err) => {
+        console.error("Firestore background save failed:", err);
+        alert("Firestore save failed: " + err.message);
       });
       navigate('/students');
-    } catch (err) {
-      setError('Unable to save student.');
+    } catch (err: any) {
+      console.error("Save student failed:", err);
+      setError(err.message || 'Unable to save student.');
       setSaving(false);
     }
   };
