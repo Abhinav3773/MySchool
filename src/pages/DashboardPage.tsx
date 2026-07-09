@@ -16,7 +16,7 @@ export function DashboardPage() {
     setLoading(true);
 
     const unsubStudents = onSnapshot(
-      query(collection(db, 'students'), where('ownerUid', '==', user.uid)),
+      collection(db, 'students'),
       (snap) => {
         setCounts((prev) => ({ ...prev, totalStudents: snap.size }));
         setLoading(false);
@@ -25,7 +25,7 @@ export function DashboardPage() {
     );
 
     const unsubCharges = onSnapshot(
-      query(collection(db, 'charges'), where('ownerUid', '==', user.uid)),
+      collection(db, 'charges'),
       (snap) => {
         const sum = snap.docs.reduce((s, doc) => s + ((doc.data() as { amountPaise: number }).amountPaise ?? 0), 0);
         setCounts((prev) => ({ ...prev, totalCharges: sum }));
@@ -33,7 +33,7 @@ export function DashboardPage() {
     );
 
     const unsubPayments = onSnapshot(
-      query(collection(db, 'payments'), where('ownerUid', '==', user.uid)),
+      collection(db, 'payments'),
       (snap) => {
         const sum = snap.docs.reduce((s, doc) => s + ((doc.data() as { amountPaise: number }).amountPaise ?? 0), 0);
         setCounts((prev) => ({ ...prev, totalPaid: sum }));

@@ -28,10 +28,11 @@ export function StudentDetailPage() {
       }
     });
 
+
+
     // 2. Listen to student charges
     const qCharges = query(
       collection(db, 'charges'),
-      where('ownerUid', '==', user.uid),
       where('studentId', '==', studentId)
     );
     const unsubCharges = onSnapshot(qCharges, (snapshot) => {
@@ -47,7 +48,6 @@ export function StudentDetailPage() {
     // 3. Listen to student payments
     const qPayments = query(
       collection(db, 'payments'),
-      where('ownerUid', '==', user.uid),
       where('studentId', '==', studentId)
     );
     const unsubPayments = onSnapshot(qPayments, (snapshot) => {

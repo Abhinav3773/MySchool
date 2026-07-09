@@ -32,8 +32,7 @@ export async function updateStudent(studentId: string, data: Partial<Omit<Studen
 }
 
 export async function getStudents(ownerUid: string): Promise<Student[]> {
-  const q = query(studentsCollection, where('ownerUid', '==', ownerUid));
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(studentsCollection);
   const list = querySnapshot.docs.map((docSnapshot) => ({
     id: docSnapshot.id,
     ...(docSnapshot.data() as Omit<Student, 'id'>),
@@ -57,8 +56,7 @@ export async function getStudentById(studentId: string): Promise<Student | null>
 
 export async function searchStudentsByName(ownerUid: string, search: string): Promise<Student[]> {
   const normalizedSearch = search.trim().toUpperCase();
-  const q = query(studentsCollection, where('ownerUid', '==', ownerUid));
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(studentsCollection);
   const list = querySnapshot.docs.map((docSnapshot) => ({
     id: docSnapshot.id,
     ...(docSnapshot.data() as Omit<Student, 'id'>),
@@ -74,9 +72,9 @@ export async function fetchDashboardCounts(ownerUid: string) {
   const chargesCollection = collection(db, 'charges');
   const paymentsCollection = collection(db, 'payments');
   const [studentsSnapshot, chargesSnapshot, paymentsSnapshot] = await Promise.all([
-    getDocs(query(studentsCollection, where('ownerUid', '==', ownerUid))),
-    getDocs(query(chargesCollection, where('ownerUid', '==', ownerUid))),
-    getDocs(query(paymentsCollection, where('ownerUid', '==', ownerUid))),
+    getDocs(studentsCollection),
+    getDocs(chargesCollection),
+    getDocs(paymentsCollection),
   ]);
   return {
     totalStudents: studentsSnapshot.size,

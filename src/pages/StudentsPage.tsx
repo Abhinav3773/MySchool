@@ -12,11 +12,12 @@ export function StudentsPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     if (!user) return;
     setLoading(true);
 
-    const q = query(collection(db, 'students'), where('ownerUid', '==', user.uid));
+    const q = collection(db, 'students');
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {

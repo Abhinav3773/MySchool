@@ -36,10 +36,11 @@ export function PaymentFormPage() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+
   useEffect(() => {
     if (!user) return;
     setLoadingStudents(true);
-    const q = query(collection(db, 'students'), where('ownerUid', '==', user.uid));
+    const q = collection(db, 'students');
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
